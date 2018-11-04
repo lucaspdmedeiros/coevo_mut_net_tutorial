@@ -11,7 +11,12 @@ output:
     toc_float:
       collapsed: false
       smooth_scroll: false
+  word_document:
+    highlight: tango
+    toc: true
   pdf_document:
+    highlight: tango
+    number_sections: true
     toc: true
 bibliography: bibliography.bib
 csl: ecology-letters.csl
