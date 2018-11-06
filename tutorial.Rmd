@@ -11,12 +11,12 @@ output:
     toc_float:
       collapsed: false
       smooth_scroll: false
-  word_document:
-    highlight: tango
-    toc: true
   pdf_document:
     highlight: tango
     number_sections: true
+    toc: true
+  word_document:
+    highlight: tango
     toc: true
 bibliography: bibliography.bib
 csl: ecology-letters.csl
@@ -28,7 +28,7 @@ Coevolution is the reciprocal evolutionary change in interacting species. Resear
 
 In this tutorial, we present a theoretical approach to study coevolution in species-rich interactions. In particular, we will focus on mutualisms by showing some recent results on how coevolution proceeds in species-rich mutualistic networks [@guimaraes2017]. We divided this tutorial in two parts. In the first part, we introduce the idea of mutualistic networks and work with some examples in order to show how these networks vary in the organization of interactions among species. In the second part, we present a mathematical model of coevolution and show how coevolution is expected to operate in different kinds of mutualistic networks.
 
-Throughout this tutorial we will use the **R** environment to perform calculations, visualize networks, introduce models, and run simulations. The idea is that the reader should be able to reproduce the results contained here by using **R**. Although the objective here is not to teach how to code in **R**, we will explain our code whenever we think that it goes beyond a basic understanding. We hope you enjoy this tutorial and please let us know if you have any comments or suggestions on how to improve it!
+Throughout this tutorial we will use the **R** environment to perform calculations, visualize networks, introduce models, and run simulations. The idea is that the reader should be able to reproduce the results contained here by using **R**. Although the objective here is not to teach how to code in **R**, we will explain our code whenever we think that it goes beyond a basic understanding. We hope you enjoy this tutorial and please let us know if you have any questions about or suggestions for this tutorial!
 
 # Mutualistic networks
 
@@ -36,7 +36,7 @@ Species rarely interact in small groups with two or three species. Different typ
 
 ## Architecture of mutualistic networks
 
-Species interaction networks may be represented by a matrix **A**, in which an entry $a_{ij}$ contains information on the interaction between species $i$ and species $j$ [@bascompte2013]. Mutualisms usually contain two distinct sets of interacting species (e.g., pollinators and plants) and mutualistic networks are therefore represented by bipartite networks in which interactions are only allowed to occur across sets [@mccann2011]. In a bipartite matrix, rows represent one set of species (e.g., plant species) whereas columns represent the other set (e.g., pollinator species). The entries $a_{ij}$ in bipartite matrices may indicate whether species $i$ and $j$ interact or not (i.e., $a_{ij} = 1$ or $a_{ij} = 0$) or it may represent the strength of interaction between species $i$ and $j$ (e.g., total number of visits of pollinator species $j$ to plant species $i$).
+Species interaction networks may be represented by a matrix **A**, in which an entry $a_{ij}$ contains information on the interaction between species $i$ and species $j$ [@bascompte2013]. Mutualisms usually contain two distinct sets of interacting species (e.g., pollinators and plants) and mutualistic networks are therefore represented by bipartite networks in which interactions are only allowed to occur across sets. In a bipartite matrix, rows represent one set of species (e.g., plant species) whereas columns represent the other set (e.g., pollinator species). The entries $a_{ij}$ in bipartite matrices may indicate whether species $i$ and $j$ interact or not (i.e., $a_{ij} = 1$ or $a_{ij} = 0$) or it may represent the strength of interaction between species $i$ and $j$ (e.g., total number of visits of pollinator species $j$ to plant species $i$).
 
 Now that we have introduced the basic terminology and concepts in mutualistic networks, let us work with some examples in **R**. First, we will build a hypothetical bipartite network containing 3 plant species, which will be placed in the rows of matrix **A**, and 4 pollinator species, which will be placed in the columns. To keep things simple, we will use only 0's and 1's for the entries $a_{ij}$. In addition, we will randomly choose who interacts with whom by using the `sample` function to sample 1's in the matrix with probability $p = 0.5$. 
 
@@ -260,7 +260,7 @@ library(metacom)
 (Q <- Modularity(A, sims = 1)[1])
 ```
 
-The modularity value above is very high, given that *Q* varies from 0 (no modularity) to $1 - \frac{1}{n}$ (maximum modularity). Differently from nestedness, modularity measures need to be optimized given that different organizations of the network in modules will render different modularity values. Thus, the *Q* value presented above represents the maximum value for this network obtained via an optimization algorithm. Just like we mentioned for nestedness, modularity values need to be compared against values obtained via a null model so that we can conclude if a network is significantly modular. More details about the different structural metrics presented here can be found in the book by @bascompte2013. Our aim here was to give an overview of a few metrics and introduce ways to compute and visualize those patterns using *R*. In the next section we will present an approach to study coevolutionary dynamics in mutualistic networks. After presenting the mathematical model we will perform some simulations and analyses that take into consideration the different network achitectures explored here.
+The modularity value above is very high, given that *Q* varies from 0 (no modularity) to $1 - \frac{1}{n}$ (maximum modularity). Differently from nestedness, modularity measures need to be optimized given that different organizations of the network in modules will render different modularity values. Thus, the *Q* value presented above represents the maximum value for this network obtained via an optimization algorithm. Just like we mentioned for nestedness, modularity values need to be compared against values obtained via a null model so that we can conclude if a network is significantly modular. More details about the different structural metrics presented here can be found in the book by @bascompte2013. Our aim here was to give an overview of a few metrics and introduce ways to compute and visualize those patterns using **R**. In the next section we will present an approach to study coevolutionary dynamics in mutualistic networks. After presenting the mathematical model we will perform some simulations and analyses that take into consideration the different network achitectures explored here.
 
 # Coevolution in mutualistic networks
 
@@ -282,15 +282,15 @@ The next step in the development of this model is to define the adaptive peak $z
 
 $$ z_{i, p}^{(t)} = \sum_{j = 1}^{N} q_{ij}^{(t)} z_j^{(t)} + (1 - m_i) \theta_i $$
 
-where $m_i$ measures the relative importance of the mutualism for the trait evolution of species $i$ ($0 < m_i < 1, \sum_{j = 1}^{n} q_{ij}^{(t)} = m_i$). By combining @lande1976 equation with our definition of the selection gradient, we arrive at a general model of coevolution in multispecies mutualisms:
+where $m_i$ measures the relative importance of the mutualism for the trait evolution of species $i$ ($0 < m_i < 1, \sum_{j = 1}^{N} q_{ij}^{(t)} = m_i$). By combining @lande1976 equation with our definition of the selection gradient, we arrive at a general model of coevolution in multispecies mutualisms:
 
 $$ z_i^{(t + 1)} = z_i^{(t)} + \varphi_i \Big[ \sum_{j = 1}^{N} q_{ij}^{(t)} (z_j^{(t)} - z_i^{(t)}) + (1 - m_i) (\theta_i - z_i^{(t)}) \Big] $$
 
 where $\varphi_i = h_i^2 \sigma_i^2 \rho$ is a compound parameter the combines the trait heritability, the phenotypic variance, and the slope of the adaptive landscape. The final step in developing this model is to define how the term $q_{ij}^{(t)}$ changes through time. To do so, we assume that $q_{ij}^{(t)}$ depends on different traits that are likely to govern mutualistic selection. First, $q_{ij}^{(t)}$ depends on a suite of traits not explicitly modeled by us that define if the interaction between two species can or cannot occur. Second, $q_{ij}^{(t)}$ depends on the traits $z_i^{(t)}$ and $z_j^{(t)}$, reflecting the fact that if those traits are similar to each other, the interaction should be functionally relevant and selection should be stronger. Combining these two components, we arrive at our equation for $q_{ij}^{(t)}$:
 
-$$q_{ij}^{(t)} = m_i \frac{a_{ij} e^{- \alpha (z_{j}^{(t)} - z_{i}^{(t)})^2}} {\sum_{k=1}^N a_{ik} e^{- \alpha (z_{j}^{(t)} - z_{i}^{(t)})^2}}$$
+$$q_{ij}^{(t)} = m_i \frac{a_{ij} e^{- \alpha (z_{j}^{(t)} - z_{i}^{(t)})^2}} {\sum_{k=1}^N a_{ik} e^{- \alpha (z_{k}^{(t)} - z_{i}^{(t)})^2}}$$
 
-where $m_i$ represents the overall strength of the mutualism as a selective pressure, $a_{ij}$ indicates whether the interaction between $i$ and $j$ is or is not allowed to occur ($a_{ij} = 0$ or $a_{ij} = 1$), and $\alpha$ controls the sensitivity of $q_{ij}^{(t)}$ to differences between traits. Note that the denominator of the equation above normalizes $q_{ij}^{(t)}$, so that $0 < q_{ij}^{(t)} < m_i, \sum_{j = 1}^{N} q_{ij}^{(t)} = m_i$. Also note that $q_{ij}^{(t)}$ is defined for any two species in the network, although this term will always be 0 if, for example, $i$ and $j$ are two plant species in a pollination network.
+where $m_i$ represents the overall strength of the mutualism as a selective pressure, $a_{ij}$ indicates whether the interaction between $i$ and $j$ is or is not allowed to occur ($a_{ij} = 0$ or $a_{ij} = 1$), and $\alpha$ controls the sensitivity of $q_{ij}^{(t)}$ to differences between traits. Note that the denominator of the equation above normalizes $q_{ij}^{(t)}$, so that $0 < q_{ij}^{(t)} < m_i, \sum_{j = 1}^{N} q_{ij}^{(t)} = m_i$. Also note that, although $q_{ij}^{(t)}$ is defined for any two species in the network, this term will always be 0 if, for example, $i$ and $j$ are two plant species in a pollination network.
 
 Now that we have a mathematical model, there are two basic ways to explore how species traits evolve in mutualistic networks. First, we may simulate the coevolutionary dynamics for a given choice of parameters (e.g., $m_i$, $a_{ij}$, $\theta_i$, $\varphi_i$, $\alpha$) in order to gain insight into how these parameters affect coevolution. In the next section, we will use **R** to perform these numerical simulations using different parameterizations and different empirical networks. Second, we may perform an analytical study to obtain some general conclusions about the model. In general, an analytical study is only possible as an approximation of the full model and we will perform this analysis by making the assumption that $q_{ij}^{(t)}$ is fixed over time (i.e., $q_{ij}^{(t)} = q_{ij}$). After investigating our model through simulations, we will also use **R** to explore the consequences of our analytical approximation of the model.
 
@@ -312,7 +312,7 @@ colnames(A) <- paste("A", 1:n_pol, sep = "")
 A
 ```
 
-Now, let us expand this matrix so that it contains all the 5 species in the rows and in the columns. This new matrix will be well suited for our simulations, because it contains all interactions among all 5 species in the network. Therefore, it will be straightforward to parameterize the $a_{i, j}$ values of our model using this matrix.
+Now, let us expand this matrix so that it contains all the 5 species in the rows and in the columns. This new matrix will be well suited for our simulations, because it contains all interactions among all 5 species in the network. Therefore, it will be straightforward to parameterize the $a_{ij}$ values of our model using this matrix.
 
 ```{r}
 # creating two null matrices
@@ -340,7 +340,7 @@ The next step is to define the parameter values to be used in the simulation. We
 z <- init
 ```
 
-Now that we have all the key ingredients of our model, let us perform the calculations for a single timestep of the model. We will use vectors and matrices containing the data for all species in the network in order to perform the computations faster. First, we can build a matrix where each entry $i, j$ contains the trait difference $z_{j}^{(t)} - z_{i}^{(t)}$:
+Now that we have all the key ingredients of our model, let us perform the calculations for a single timestep of the model. We will use vectors and matrices containing the data for all species in the network in order to perform the computations faster. First, we can build a matrix where each entry contains the trait difference $z_{j}^{(t)} - z_{i}^{(t)}$:
 
 ```{r}
 (z_dif <- t(A * z) - A * z)
@@ -376,7 +376,7 @@ If we add these two components for each species $i$ and multiply them by $\varph
 (z <- z + phi * (mut_sel + env_sel))
 ```
 
-The simulation of a single timestep of trait evolution described above can now be used as basic block of an **R** function that simulates the coevolutionary dynamics until equilibrium is reached. The function that simulates the coevolutionary model will contain as arguments all the parameters explored above plus two additional arguments. These two additional arguments will tell the function when to stop the simulation. The first argument, `epsilon`, contains the threshold value that must be reached for the simulation to stop. If the mean value of $|z_i^{(t + 1)} - z_i^{(t)}|$ over all species $i$ is smaller than `epsilon`, than the simulation will stop. The second argument, `t_max`, contains the maximum number of timesteps allowed. Therefore, if the threshold value `epsilon` is not reached, but the simulation reaches `t_max` timesteps, then the simulation also stops. Note that all vectors used as arguments in the function below need to contain the values for all species in the network in the same order as those species are present in the full, $N \times N$, interaction matrix **A**.
+The simulation of a single timestep of trait evolution described above can now be used as the basic block of an **R** function that simulates the coevolutionary dynamics until equilibrium is reached. The function that simulates the coevolutionary model will contain as arguments all the parameters explored above plus two additional arguments. These two additional arguments will tell the function when to stop the simulation. The first argument, `epsilon`, contains the threshold value that must be reached for the simulation to stop. If the mean value of $|z_i^{(t + 1)} - z_i^{(t)}|$ over all species $i$ is smaller than `epsilon`, than the simulation will stop. The second argument, `t_max`, contains the maximum number of timesteps allowed. Therefore, if the threshold value `epsilon` is not reached, but the simulation reaches `t_max` timesteps, then the simulation also stops. Note that all vectors used as arguments in the function below need to contain the values for all species in the network in the same order as those species are present in the full, $N \times N$, interaction matrix **A**.
 
 ```{r}
 coevo_mut_net <- function(n_sp, A, m, phi, alpha, theta, init, epsilon, t_max) {
@@ -412,16 +412,16 @@ coevo_mut_net <- function(n_sp, A, m, phi, alpha, theta, init, epsilon, t_max) {
 }
 ```
 
-We now have an **R** function that simulates the coevolutionary dynamics in a mutualistic network, given a set of parameter values. Our next step in this tutorial will be to use this function to investigate how two parameters, mutualistic selection ($m_i$) and network architecture ($a_{ij}$), affect coevolution in mutualistic networks. To do so, we will use different values of  ($m_i$) and different empirical networks to parameterize the $a_{ij}$ values of the coevolutionary model in order to verify how these parameters affect trait evolution.
+We now have an **R** function that simulates the coevolutionary dynamics in a mutualistic network, given a set of parameter values. Our next step in this tutorial will be to use this function to investigate how two parameters, mutualistic selection ($m_i$) and network architecture ($a_{ij}$), affect coevolution in mutualistic networks. To do so, we will use different values of $m_i$ and different empirical networks to parameterize the $a_{ij}$ values of the coevolutionary model in order to verify how these parameters affect trait evolution.
 
-Let us start by performing one simulation of the coevolutionary model as an example, using the small pollination network with 5 species created above. We will also use all the parameter values already defined above. In addition, we will use `epsilon` as 0.01 and `t_max` as 1,000.
+Let us start by performing one simulation of the coevolutionary model as an example, using the small pollination network with 5 species created above. We will also use all the parameter values already defined above. In addition, we will set `epsilon` to 0.01 and `t_max` to 1,000.
 
 ```{r}
 (z_mat <- coevo_mut_net(n_sp, A, m, phi, alpha, theta, init, 
                         epsilon = 0.01, t_max = 1000))
 ```
 
-The object `z_mat` returned by the function `coevo_mut_net` is a matrix containing the trait value of species $j$ for timestep $i$ as each entry $i, j$. We can see that this simulation only lasted for `r nrow(z_mat)` timesteps. In order to better visualize and understand this simulation, let us create a plot of the mean trait value of each species $z_i^{(t)}$ over time. Before we do so, we will make a plot of our mutualistic network with 5 species and use the same color for each species in both plots. Tones of green will correspond to plant species and tones of red to pollinator species.
+The object `z_mat` returned by the function `coevo_mut_net` is a matrix containing the trait value of species $j$ for timestep $i$ as each entry. We can see that this simulation only lasted for `r nrow(z_mat)` timesteps. In order to better visualize and understand this simulation, let us create a plot of the mean trait value of each species ($z_i^{(t)}$) over time. Before we do so, we will make a plot of our mutualistic network with 5 species and use the same color for each species in both plots. Tones of green will correspond to plant species and tones of red to pollinator species.
 
 ```{r, fig.width = 4, fig.height = 4}
 # obtaining bipartite matrix
@@ -468,9 +468,9 @@ ggplot(z_df, aes(x = time, y = trait, color = species, group = species)) +
         legend.title = element_text(size = 14))
 ```
 
-In the plot above, the circles and lines represent species traits ($z_i^{(t)}$) trajectories and the squares in the right side represent the environmental optimum for each species ($\theta_i$). We can see that species traits change a lot in the beggining of the simulation, but then reach an equilibrium. It is also interesting to note that the equilibrium trait values ($z_i^{*}$) are different from the environmental trait values ($\theta_i$) for each species. This shows that mutualistic selection is shaping trait evolution by generating trait matching among mutualistic partners.
+In the plot above, the circles and lines represent species traits ($z_i^{(t)}$) trajectories and the squares in the right side represent the environmental optimum for each species ($\theta_i$). We can see that species traits change a lot in the beggining of the simulation, but then reach an equilibrium. It is also interesting to note that the equilibrium trait values, denoted by $z_i^{*}$, are different from the environmental trait values ($\theta_i$) for each species. This shows that mutualistic selection is shaping trait evolution by generating trait matching among mutualistic partners.
 
-This coevolutionary model has many different parameters and it is not the goal of this tutorial to analyze the effect of all of them. To show the effect of $m_i$ on trait evolution, let us now simulate the coevolutionary dynamics using 5 different values of $m_i$: 0.1, 0.3, 0.5, 0.7, and 0.9. To do so, we will use the function `lapply` to perform the function `coevo_mut_net` 5 times using different $m_i$ values each time. The rest of the parameters will be the same as used in the previous simulation.
+This coevolutionary model has many different parameters and it is not the goal of this tutorial to analyze the effect of all of them. Extensive analyzes of the effects of model parameters have been performed previously by @guimaraes2017 and by @medeiros2018. Our aim here is just to give a few examples of how mutualistic selection ($m_i$) and network architecture ($a_{ij}$) affect coevolution. To evaluate the effect of $m_i$ on trait evolution, let us now simulate the coevolutionary dynamics using 5 different values of $m_i$: 0.1, 0.3, 0.5, 0.7, and 0.9. To do so, we will use the function `lapply` to run the function `coevo_mut_net` 5 times using a different $m_i$ value each time. The rest of the parameters will be the same as used in the previous simulation.
 
 ```{r}
 # defining list with m values
@@ -484,7 +484,7 @@ z_list <- lapply(m_list, coevo_mut_net, n_sp = n_sp,
                  epsilon = 0.01, t_max = 1000)
 ```
 
-To visualize the effect of the mutualistic selection, we will create a plot with the equilibrium trait values for each $m_i$ value. The colors of the point correspond to the same colors of the previous plot.
+The object `z_list` above is a list in which each element contains a matrix with the results of a single simulation. To visualize the effect of mutualistic selection, we will create a plot with the equilibrium trait values for each $m_i$ value. The colors of the points correspond to the same colors of the previous plot.
 
 ```{r, fig.width = 6, fig.height = 4}
 # extracting the equilibrium vector for each simulation
@@ -503,15 +503,15 @@ ggplot(z_eq_df, aes(x = m, y = trait, color = species)) +
   ylab("Mean species trait at equilibrium (z*)") +
   theme(axis.text.x = element_text(size = 12),
         axis.text.y = element_text(size = 12),
-        axis.title = element_text(size = 16), 
+        axis.title = element_text(size = 15), 
         legend.key.size = unit(0.6, "cm"),
         legend.text = element_text(size = 14),
         legend.title = element_text(size = 14))
 ```
 
-The plot above clearly shows that the effect of mutualistic selection is to increase trait matching in the mutualistic network. When $m_i$ is low, species traits evolve according to environmental selection and the equilibrium value of each species $i$ becomes close to $\theta_i$. When $m_i$ is high, species traits evolve a strong coupling with their mutualistic partners and trait values of different species become more similar to each other over time.
+The plot above clearly shows that the effect of mutualistic selection is to increase trait matching in the mutualistic network. When $m_i$ is low, species traits are mostly driven by environmental selection and the equilibrium value of each species $i$ becomes close to $\theta_i$. On the other hand, when $m_i$ is high, species traits are driven towards a strong coupling with their mutualistic partners and trait values of different species become more similar to each other.
 
-Our next step in simulating our coevolutionary model will be to test the effect of the structure of interactions. To do so, we will look at the pairwise values of trait matching at equilibrium ($e^{- \alpha (z_{j}^{*} - z_{i}^{*})^2}$) in two simulations. The first simulation will be parameterized by the nested pollination network and the second simulation, by the modular ant-plant network, which were introduced in the previous section of the tutorial. To simplify our analysis, we will only use one value of mutualistic selection: $m_i = 0.7$. Let us first create the two networks.
+Our next step in simulating our coevolutionary model will be to test the effect of the structure of interactions. To do so, we will look at the pairwise values of trait matching at equilibrium ($e^{- \alpha (z_{j}^{*} - z_{i}^{*})^2}$) in two simulations. The first simulation will be parameterized by the nested pollination network and the second simulation by the modular ant-plant network. These two networks were introduced in the previous section of the tutorial. In order to simplify our analysis, we will only use one value of mutualistic selection: $m_i = 0.7$. Let us first load the two networks into **R**.
 
 ```{r}
 # ---------- Nested network ----------
@@ -551,7 +551,7 @@ A_modular <- rbind(cbind(matrix(0, n_plant_modular, n_plant_modular), A_modular)
                    cbind(t(A_modular), matrix(0, n_anim_modular, n_anim_modular)))
 ```
 
-Now, we can simulate the coevolutionary dynamics for each network. All parameters of the model will be the same for both simulations, except for the interaction coefficients $a_{ij}$ which will be parameterized with the empirical data.
+Now, we can simulate the coevolutionary dynamics for each network. All parameters of the model will be the same for both simulations, except for the interaction coefficients $a_{ij}$, which will be parameterized with the empirical data.
 
 ```{r}
 # ---------- Nested network ----------
@@ -591,7 +591,7 @@ z_modular <- coevo_mut_net(n_sp_modular, A_modular, m, phi, alpha, theta, init,
 z_modular_eq <- z_modular[nrow(z_modular), ]
 ```
 
-We now have the simulation results for the two distinct networks. The next step is to calculate the trait matching value for each pair of interacting species and plot these values. To do so, we will first create a function that computes the trait matching for every pair of species in the network.
+We now have two vectors `z_nested_eq` and `z_modular_eq` that contain the equilibrium trait values of a single simulation using the nested network and the modular network, respectively. The next step is to calculate the trait matching value for each pair of interacting species and to plot these values. To do so, we will first create a function that computes the trait matching for every pair of species in a network. The inputs for this function are: `n_sp`, the total number of species; `n_row`, the number of species in the rows of the original bipartite matrix; `n_col`, the number of species in the columns of the original bipartite matrix; `A`, the full $N \times N$ interaction matrix **A**; `z`, the trait values with species ordered in the same way as in the matrix **A**; and `alpha` the parameter $\alpha$ of the trait matching formula.
 
 ```{r}
 trait_matching <- function(n_sp, n_row, n_col, A, z, alpha) {
@@ -629,13 +629,15 @@ trait_matching <- function(n_sp, n_row, n_col, A, z, alpha) {
 }
 ```
 
-Now, let us compute trait matching using our two networks and the equilibrium pairwise trait matching values.
+This function returns a data frame with each row representing a pair of interacting species in the network. The first column contains the label for the first species, the second column contains the label for the second species, and the third column contains the trait matching value. Now, let us use this function to compute equilibrium pairwise trait matching values for our two simulations. After computing trait matching, we will plot the results on the original bipartite interaction matrix. Above each plot, we will also show the mean trait matching across all interacting species.
 
 ```{r, fig.width = 5, fig.height = 4}
 # ---------- Nested network ----------
 # computing trait matching
 trait_match_df <- trait_matching(n_sp_nested, n_plant_nested, n_anim_nested,
                                  A_nested, z_nested_eq, alpha = 0.2)
+# computing mean trait matching
+mean_trait_match <- mean(trait_match_df$matching)
 # changing order of species in the data frame
 trait_match_df$row <- n_plant_nested - 
   as.numeric(substr(as.character(trait_match_df$row), start = 2, 
@@ -650,7 +652,9 @@ ggplot(data = trait_match_df, aes(x = column, y = row,
   scale_fill_viridis(name = "trait\nmatching", option = "plasma", limits = c(0, 1)) +
   ylab("Plants") +
   xlab("Animals") +
-  theme(axis.text.x = element_blank(),
+  ggtitle(paste("mean trait matching =", round(mean_trait_match, 2))) +
+  theme(plot.title = element_text(size = 16, face = "bold"),
+        axis.text.x = element_blank(),
         axis.text.y = element_blank(),
         axis.ticks.x = element_blank(),
         axis.ticks.y = element_blank(),
@@ -665,6 +669,8 @@ ggplot(data = trait_match_df, aes(x = column, y = row,
 # computing trait matching
 trait_match_df <- trait_matching(n_sp_modular, n_plant_modular, n_anim_modular,
                                  A_modular, z_modular_eq, alpha = 0.2)
+# computing mean trait matching
+mean_trait_match <- mean(trait_match_df$matching)
 # changing order of species in the data frame
 trait_match_df$row <- n_plant_modular - 
   as.numeric(substr(as.character(trait_match_df$row), start = 2, 
@@ -679,7 +685,9 @@ ggplot(data = trait_match_df, aes(x = column, y = row,
   scale_fill_viridis(name = "trait\nmatching", option = "plasma", limits = c(0, 1)) +
   ylab("Plants") +
   xlab("Animals") +
-  theme(axis.text.x = element_blank(),
+  ggtitle(paste("mean trait matching =", round(mean_trait_match, 2))) +
+  theme(plot.title = element_text(size = 16, face = "bold"),
+        axis.text.x = element_blank(),
         axis.text.y = element_blank(),
         axis.ticks.x = element_blank(),
         axis.ticks.y = element_blank(),
@@ -689,15 +697,15 @@ ggplot(data = trait_match_df, aes(x = column, y = row,
         legend.title = element_text(size = 14))
 ```
 
-Although the difference is not striking, we can see from the plots above that trait matching is higher on average for the modular network than for the nested network. This happens because the disconnected structure of the modular network allows species in isolated groups to evolve high trait matching with each other. On the other hand, the nested network generates multiple conflicting selection pressures, especially on generalist species, inhibiting the evolution of high values of trait matching. Although we only performed one simulation for each network, it has been shown that these conclusions about the coevolutionary effects of network structure hold when many simulations are performed using many empirical networks [@guimaraes2017; @medeiros2018].
+Although the pairwise trait matching can vary a lot within each network, we can see from the plots above that trait matching is higher on average for the modular network than for the nested network. This happens because the disconnected structure of the modular network allows species in isolated groups to evolve high trait matching with each other. On the other hand, species in the nested network are faced with multiple conflicting selection pressures, which inhibits the evolution of trait matching. Although we only performed one simulation for each network, it has been shown that these conclusions about the coevolutionary effects of network structure hold when many simulations are performed using many empirical networks [@guimaraes2017; @medeiros2018].
 
 Now that we have explored the coevolutionary model through simulations, let us move on to the last section of this tutorial, in which we will explore an analytical approximation to the coevolutionary model.
 
 ### Analytical study
 
-In the previous section, we have used numerical simulations to gain insight into how species coevolve in mutualistic networks. We have analyzed how different model parameters ($m_i$ and $a_{ij}$) affect trait evolution. Importantly, we have explored how the structure of interactions contained in the entries $a_{ij}$ of the interaction matrix **A** may shape coevolution. In the present section of this tutorial, we will use an analytical approximation of our model to understand how coevolutionary selection operates in mutualistic networks [@guimaraes2017]. In particular, we will explore how $m_i$ and $a_{ij}$ affect trait evolution through direct and indirect coevolutionary effects in the network.
+In the previous section, we have used numerical simulations to gain insight into how species coevolve in mutualistic networks. We have analyzed how different model parameters ($m_i$ and $a_{ij}$) affect trait evolution. Importantly, we have explored how the structure of interactions contained in the entries $a_{ij}$ of the interaction matrix **A** may shape coevolution. In the present section of this tutorial, we will use an analytical approximation of the model to understand how coevolutionary selection operates in mutualistic networks [@guimaraes2017]. In particular, we will explore how $m_i$ and $a_{ij}$ affect trait evolution through direct and indirect coevolutionary effects in the network.
 
-The first goal of our analytical study is to find the mathematical equation that describes the equilibrium of the coevolutionary model. More specifically, we want to find the equation that satisfies $z_i^{(t + 1)} = z_i^{(t)} = z_i^{*}$, which means that the mean trait value of every species $i$ in the network is fixed over time. To do so, we have to solve the following equation for $z_i^{*}$, which is the equilibrium trait value of species $i$:
+The first goal of our analytical study is to find the mathematical equation that describes the equilibrium of the coevolutionary model. More specifically, we want to find the equation that satisfies $z_i^{(t + 1)} = z_i^{(t)} = z_i^{*}$, which means that the mean trait value of every species $i$ in the network is fixed over time. To be able to solve for equilibrium, we have to make the assumption that $q_{ij}^{(t)}$ is fixed over time (i.e., $q_{ij}^{(t)} = q_{ij}$). By assuming that pairwise evolutionary effects are fixed, we can solve our model for equilibrium, given that it is now a linear dynamical system. So, our goal is to solve the following equation for $z_i^{*}$:
 
 $$ 0 = \varphi_i \Big[ \sum_{j = 1}^{N} q_{ij} (z_j^{*} - z_i^{*}) + (1 - m_i) (\theta_i - z_i^{*}) \Big] $$
 
@@ -744,7 +752,7 @@ q_{N1}    & q_{N2}    & \cdots     & q_{NN}   \\
 \end{bmatrix} \right.
 \]
 
-We now write the previous equation using these vectors and matrices:
+We can now write the previous equation using these vectors and matrices:
 
 $$ \boldsymbol{0} = \boldsymbol{Q} \boldsymbol{z^{*}} + \boldsymbol{\Psi} \boldsymbol{\theta} - \boldsymbol{z^{*}} $$
 
@@ -754,7 +762,7 @@ $$ \boldsymbol{z^{*}} - \boldsymbol{Q} \boldsymbol{z^{*}} = \boldsymbol{\Psi} \b
 
 $$ \boldsymbol{z^{*}} = (\boldsymbol{I} - \boldsymbol{Q})^{-1} \boldsymbol{\Psi} \boldsymbol{\theta} $$
 
-where $\boldsymbol{I}$ is the identity matrix of dimension $N$. The above equation describes how we obtain the equilibrium trait value of each species ($z_i^{*}$) only by knowing some of the parameters of the model ($q_{ij}$, $m_i$, and $\theta_i$). This mathematical analysis tells us that, if $q_{ij}$ values are fixed over time, we can simply obtain the final trait values without the need of performing a numerical simulation. In this sense, we can now explore coevolution in mutualistic networks by using the analytical equilibrium expression above. To do so, let us first create a simple **R** function that performs the analytical computation.
+where $\boldsymbol{I}$ is the identity matrix of dimension $N$ and $(\boldsymbol{I} - \boldsymbol{Q})^{-1}$ is the inverse of the matrix $(\boldsymbol{I} - \boldsymbol{Q})$. The above equation describes how we obtain the equilibrium trait value of each species ($z_i^{*}$) only by knowing some of the parameters of the model ($q_{ij}$, $m_i$, and $\theta_i$). This mathematical analysis tells us that, if $q_{ij}$ values are fixed over time, we can simply obtain the final trait values without the need of performing a numerical simulation. In this sense, we can now explore coevolution in mutualistic networks by using the analytical equilibrium expression above. To do so, let us first create a simple **R** function that performs the analytical computation.
 
 ```{r}
 coevo_equil <- function(n_sp, Q, Psi, theta) {
@@ -764,7 +772,7 @@ coevo_equil <- function(n_sp, Q, Psi, theta) {
 }
 ```
 
-Let us now use this function to compute equilibrium trait values for the nested pollination network that we used previously. We will use specific values for $m_i$ and $\theta_i$ and empirical data to parameterize $q_{ij}$. Our assumption here is that the strength of interaction between species $i$ and $j$ (i.e., total number of visits of pollinator species $j$ to plant species $i$) is a good approximation of the evolutionary effect that species $j$ imposes on species $i$. The first step is to load the data into **R** and build the following matrices and vectors: $\boldsymbol{Q}$, $\boldsymbol{\Psi}$, and $\boldsymbol{\theta}$. Then, we will compute the equilibrium trait values.
+Let us now use this function to compute equilibrium trait values for the nested pollination network that we used previously. We will use specific values for $m_i$ and $\theta_i$ and empirical data to parameterize $q_{ij}$. Our assumption here is that the interaction strength between species $i$ and $j$ (i.e., total number of visits of pollinator species $j$ to plant species $i$) can be used to estimate the evolutionary effect that species $j$ imposes on species $i$. The first step is to load the pollination network in **R** and build the following matrices and vectors: $\boldsymbol{Q}$, $\boldsymbol{\Psi}$, and $\boldsymbol{\theta}$. Then, we will use the function `coevo_equil` to compute equilibrium trait values.
 
 ```{r}
 # ---------- Nested network ----------
@@ -794,7 +802,7 @@ theta <- runif(n_sp_nested, min = 0, max = 10)
 (z_nested_eq <- coevo_equil(n_sp_nested, Q_nested, Psi_nested, theta))
 ```
 
-Now, let us look at the structure of the matrix $\boldsymbol{T} = (\boldsymbol{I} - \boldsymbol{Q})^{-1} \boldsymbol{\Psi}$ by varying two parameters of the model: the strength of mutualistic selection ($m_i$) and the interaction network ($a_{ij}$). Because $\boldsymbol{T}$ is the matrix that connects the environmental optima with traits at equilibrium, our hope is that its structure will tell us something about how coevolution operates in mutualistic networks. Before we start exploring $\boldsymbol{T}$, let us look at the structure of $\boldsymbol{Q}$, the matrix of evolutionary effects.
+The vector `z_nested_eq` above gives us the equilibrium trait values for all the species in the network. In addition to allowing us to compute the equilibrium traits without the need of performing a simulation, the analytical solution allows us to explore how selection operates in mutualistic networks. To do so, let us look at the structure of the matrix $\boldsymbol{T} = (\boldsymbol{I} - \boldsymbol{Q})^{-1} \boldsymbol{\Psi}$ by varying two parameters of the model: the strength of mutualistic selection ($m_i$) and the interaction network ($a_{ij}$). Because $\boldsymbol{T}$ is the matrix that connects the environmental optima ($\boldsymbol{\theta}$) with traits at equilibrium ($\boldsymbol{z^{*}}$), our hope is that its structure will tell us something about how coevolution operates in mutualistic networks. Before we start exploring $\boldsymbol{T}$, let us look at the structure of $\boldsymbol{Q}$, the matrix of evolutionary effects.
 
 ```{r, fig.width = 6, fig.height = 4}
 # ---------- Matrix Q ----------
@@ -822,7 +830,7 @@ ggplot(data = subset(Q_nested_df, value > 0),
         legend.title = element_text(size = 14))
 ```
 
-Now, let us compare the structure of matrix $\boldsymbol{Q}$ with the structure of matrix $\boldsymbol{T}$.
+We can see that only certain elements of the matrix $\boldsymbol{Q}$ are different from zero, given that $q_{ij} = 0$ if $i$ and $j$ do not interact in the network (e.g., $i$ and $j$ are both plant species). Now, let us compare the structure of matrix $\boldsymbol{Q}$ with the structure of matrix $\boldsymbol{T}$.
 
 ```{r, fig.width = 6, fig.height = 4}
 # ---------- Matrix T ----------
@@ -852,9 +860,9 @@ ggplot(data = subset(T_nested_df, value > 0),
         legend.title = element_text(size = 14))
 ```
 
-In contrast with matrix $\boldsymbol{Q}$, the matrix $\boldsymbol{T}$ above shows that the equilibrium trait value of each species $i$ in the network is affected by every other species $j$ in the network. Therefore, a given species may affect another species even if they are not directly connected in the network, for example, plants may affect plants and animals may affect animals. This result suggests that indirect effects are an important feature of coevolution in mutualistic networks [@guimaraes2017].
+In contrast with matrix $\boldsymbol{Q}$, matrix $\boldsymbol{T}$ is completely filled with nonzero values. Therefore, the plot above shows that matrix $\boldsymbol{T}$ contains evolutionary effects between species that are not directly connected in the network, that is, indirect evolutionary effects. This means that the equilibrium trait value of each species $i$ in the network is affected by every other species $j$ in the network. This result suggests that indirect effects are an important feature of coevolution in mutualistic networks [@guimaraes2017].
 
-Our final analysis will be to investigate how important are indirect effects for trait evolution. To do so, we will explore how $m_i$ and $a_{ij}$ affect the indirect coevolutionary effects present in matrix $\boldsymbol{T}$. We will measure indirect effects as the proportion of all evolutionary effects of matrix $\boldsymbol{T}$ that are indirect: 
+Our final analysis will be to investigate how important are indirect effects for trait evolution. To do so, we will explore how $m_i$ and $a_{ij}$ affect the indirect coevolutionary effects present in matrix $\boldsymbol{T}$. Following @guimaraes2017, we will measure the contribution of indirect effects to trait evolution as the proportion of all evolutionary effects of matrix $\boldsymbol{T}$ that are indirect: 
 
 $$\kappa = \frac{\sum_{i}^{N} \sum_{j, j \neq i}^{N} (1 - a_{ij}) t_{ij}}{\sum_{i}^{N} \sum_{j, j \neq i}^{N} t_{ij}} $$
 
@@ -917,7 +925,7 @@ ggplot(data = kappa_nested_df, aes(x = m, y = kappa)) +
 
 The plot above shows that as we increase the importance of mutualistic selection, we increase the contribution of indirect coevolutionary effects to trait evolution [@guimaraes2017]. Therefore, this result based on our analytical approximation of the model provides a mechanism for how mutualistic selection favors trait matching in mutualistic networks. It does so by fueling the indirect coevolutionary effects between species in the network [@medeiros2018].
 
-Now, let us add the points corresponding to the modular ant-plant network to the plot above. This will allow us to explore how different network structures mediate the contribution of indirect effects to trait evolution.
+We can now perform the same analysis for the modular ant-plant network and check if different network structures vary in how they generate indirect evolutionary effects. To do so, let us add the points corresponding to the modular network to the plot above.
 
 ```{r, fig.width = 6, fig.height = 4}
 # ---------- Modular network ----------
@@ -972,10 +980,10 @@ ggplot(data = kappa_df, aes(x = m, y = kappa, color = network)) +
         legend.title = element_text(size = 14))
 ```
 
-We can see from the plot above that coevolution is likely to operate differently in different types of network. Coevolution in nested networks should be more influenced by indirect effects than coevolution in modular networks. These results have been confirmed through extensive analyzes with a large dataset of mutualistic networks [@guimaraes2017].
+The plot above provides further evidence that coevolution is likely to operate differently in different types of network. Coevolution in nested networks should be more influenced by indirect effects than coevolution in modular networks. This is probably the mechanism behind the different degrees of trait matching that we observed previously for these two networks. Extensive analyzes on how different types of mutualism vary in their contribution to indirect evolutionary effects have been performed by @guimaraes2017.
 
 # Conclusions
 
-The goal of this tutorial was to introduce an approach to study coevolution in ecological networks using the **R** environment. We first introduced the concept of mutualistic networks and explored their structural patterns. Then, we worked with a mathematical model of coevolution and showed how it can be explored with simulations and with analytical tools. We have shown that different interactions (e.g., pollination, ant-plant interactions) produce very different types of network. Furthermore, these different networks are expected to generate different coevolutionary dynamics. We also showed that other parameters in the mathematical model have an important influence in the dynamics (e.g., strength of mutualistic selection). We hope that the tutorial was useful and please let us know if you have any comments or suggestions on how to improve it!
+The goal of this tutorial was to introduce an approach to study coevolution in mutualistic networks using the **R** environment. We first introduced the concept of mutualistic networks and explored their structural patterns. Then, we worked with a mathematical model of coevolution and showed how it can be explored with simulations and with analytical tools. We have shown that different mutualisms (e.g., pollination, ant-plant interactions) produce very different types of network. Furthermore, these different networks are expected to produce different coevolutionary dynamics. We also showed how the importance of mutualistic selection can affect coevolution in mutualistic networks. We hope that this tutorial was useful and please let us know if you have any questions about or suggestions for this tutorial!
 
 # References
